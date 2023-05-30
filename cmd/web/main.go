@@ -9,13 +9,14 @@ import (
 	"os/signal"
 	"syscall"
 
+	v "github.com/adoublef-go/rest-api/internal/http/middleware/version"
 	v1 "github.com/adoublef-go/rest-api/internal/http/v1"
 	v2 "github.com/adoublef-go/rest-api/internal/http/v2"
 	"github.com/go-chi/chi/v5"
-	v "github.com/kataras/versioning"
 )
 
 var PORT = os.Getenv("PORT")
+
 func init() {
 	if PORT == "" {
 		PORT = "8080"
@@ -39,12 +40,12 @@ func main() {
 	}
 }
 
-func  run(ctx context.Context) error {
+func run(ctx context.Context) error {
 	v1, v2 := v1.NewService(), v2.NewService()
 
 	mux := chi.NewMux()
-
-	mux.Mount("/",  v.NewMatcher(v.Map{"1": v1, "2": v2}))
+	mux.Use(v.Vendor("vnd.api+json"))
+	mux.Mount("/", v.Match(v.Map{">=1": v1, "2": v2}))
 
 	srv := &http.Server{
 		Addr:        ":" + PORT,

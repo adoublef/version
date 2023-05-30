@@ -26,18 +26,14 @@ func NewService() *Service {
 }
 
 func (s *Service) routes() {
-	// s.m.Get("<resource>", <version_handler>(map[string|number]http.Handler{"1": <handler>, "2": <handler>})))
-	// I can use the "github.com/hashicorp/go-version" package to check the version
 	s.m.Get("/", s.handleResource())
 }
 
 func (s *Service) handleResource() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// header versioning
-		// w.Header().Set("Accept", "application/vnd.api.v1+json")
 		s.m.Respond(w, r, &map[string]any{
-			"version": "v2",
-			"message": "hello world",
+			"firstname": "John",
+			"surname": "Brown",
 		}, http.StatusOK)
 	}
 }
@@ -45,7 +41,6 @@ func (s *Service) handleResource() http.HandlerFunc {
 var defaultMux = &muxHandler{chi.NewMux()}
 
 type muxHandler struct {
-	// Include versioning here
 	chi.Router
 }
 
