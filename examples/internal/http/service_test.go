@@ -5,11 +5,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	v "github.com/adoublef-go/version"
 	v1 "example/internal/http/v1"
 	v2 "example/internal/http/v2"
+
+	v "github.com/adoublef-go/version"
 	"github.com/go-chi/chi/v5"
-	is "github.com/stretchr/testify/require"
 )
 
 func TestVersioning(t *testing.T) {
@@ -40,15 +40,23 @@ func TestVersioning(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			req, err := http.NewRequest(http.MethodGet, srv.URL+"/", nil)
-			is.NoError(t, err)
+			if err != nil {
+				t.Fatalf("http.NewRequest: %v", err)
+			}
 
 			req.Header.Set("Accept", tc.accept)
 			res, err := srv.Client().Do(req)
-			is.NoError(t, err)
+			if err != nil {
+				t.Fatalf("srv.Client().Do: %v", err)
+			}
 
-			is.Equal(t, http.StatusOK, res.StatusCode)
+			if res.StatusCode != http.StatusOK {
+				t.Fatalf("res.StatusCode: %v", res.StatusCode)
+			}
 
-			is.Equal(t, tc.version, res.Header.Get("X-API-Version"))
+			if tc.version != res.Header.Get("X-API-Version") {
+				t.Fatalf("res.Header.Get(X-API-Version): %v", res.Header.Get("X-API-Version"))
+			}
 		})
 	}
 
