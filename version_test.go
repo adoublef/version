@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	version "github.com/Masterminds/semver/v3"
-	is "github.com/stretchr/testify/require"
 )
 
 func TestCheckVersion(t *testing.T) {
@@ -17,7 +16,9 @@ func TestCheckVersion(t *testing.T) {
 	var cs []constraintHandler
 	for s, h := range vm {
 		cc, err := version.NewConstraint(s)
-		is.NoError(t, err)
+		if err != nil {
+			t.Fatalf("version.NewConstraint: %v", err)
+		}
 
 		cs = append(cs, constraintHandler{cc, h})
 	}
