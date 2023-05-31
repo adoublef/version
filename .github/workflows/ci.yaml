@@ -33,4 +33,5 @@ jobs:
       - 
         name: Run tests
         run: |
+          go mod download
           go test . -test.v
