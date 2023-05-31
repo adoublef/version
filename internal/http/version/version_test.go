@@ -1,49 +1,40 @@
 package version
 
 import (
-	"net/http"
 	"testing"
 
+	version "github.com/Masterminds/semver/v3"
 	is "github.com/stretchr/testify/require"
 )
 
-
-
 func TestCheckVersion(t *testing.T) {
 	vm := Map{
-		">=1": http.NotFoundHandler(),
-		"2":   http.NotFoundHandler(),
-		"3":   http.NotFoundHandler(),
+		">=1": nil,
+		"2":   nil,
+		"3":   nil,
+	}
+
+	var cs []constraintHandler
+	for s, h := range vm {
+		cc, err := version.NewConstraint(s)
+		is.NoError(t, err)
+
+		cs = append(cs, constraintHandler{cc, h})
 	}
 
 	// called during mux.Mount
-	cs, err := vm.Slice()
-	is.NoError(t, err)
 
 	acceptHeader := "application/vnd.api+json; version=1.2"
 	// called during mux.Use
-	ver, err := getMediaTypeVersion(acceptHeader, "vnd.api+json")
+	ver, err := parseVersion(acceptHeader, "vnd.api+json")
 	is.NoError(t, err)
 
 	// called during mux.Mount
-	_, ok := matchVer(cs, ver)
+	_, ok := match(cs, ver)
 	is.True(t, ok)
 }
 
-func TestAPIConstraints(t *testing.T) {
-	vm := Map{
-		">=1":   http.NotFoundHandler(),
-		"2":  http.NotFoundHandler(),
-	}
-
-	cs, err := vm.Slice()
-	is.NoError(t, err)
-
-	// first is the highest version
-	is.Equal(t, "2", cs[0].String())
-}
-
-func TestMIMEType(t *testing.T) {
+func TestParseVersion(t *testing.T) {
 	type testcase struct {
 		name    string
 		media   string
@@ -63,7 +54,7 @@ func TestMIMEType(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			ver, err := getMediaTypeVersion(tc.media, "vnd.api+json")
+			ver, err := parseVersion(tc.media, "vnd.api+json")
 			is.NoError(t, err)
 
 			is.Equal(t, tc.version, ver.String())

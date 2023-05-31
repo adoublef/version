@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	v "github.com/adoublef-go/rest-api/internal/http/middleware/version"
-	v1 "github.com/adoublef-go/rest-api/internal/http/v1"
-	v2 "github.com/adoublef-go/rest-api/internal/http/v2"
+	v "github.com/adoublef-go/rest-api/internal/http/version"
+	v1 "github.com/adoublef-go/rest-api/internal/resource/http/v1"
+	v2 "github.com/adoublef-go/rest-api/internal/resource/http/v2"
 	"github.com/go-chi/chi/v5"
 	is "github.com/stretchr/testify/require"
 )
@@ -24,23 +24,19 @@ func TestVersioning(t *testing.T) {
 	}{
 		{
 			name:    "version 1 - good formatted header",
-			accept:  "application/vnd.api+json;version=1.0",
-			version: "1.0.0",
+			accept:  "application/vnd.api+json;version=1",
+			version: "1",
 		},
 		{
 			name:    "version 1 - ok formatted header",
-			accept:  "application/vnd.api+json; version=1.0",
-			version: "1.0.0",
+			accept:  "application/vnd.api+json; version=1.2",
+			version: "1",
 		},
 		{
 			name:    "version 2 - poorly formatted header",
 			accept:  "application/vnd.api+json ;version=2.0",
-			version: "2.0.0",
+			version: "2",
 		},
-		// {
-		// 	name: "default version",
-		// 	version: "v1",
-		// },
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			req, err := http.NewRequest(http.MethodGet, srv.URL+"/", nil)
@@ -63,8 +59,8 @@ func newTestServer(t *testing.T) (srv *httptest.Server) {
 	v1, v2 := v1.NewService(), v2.NewService()
 
 	mux := chi.NewMux()
-	mux.Use(v.Vendor("vnd.api+json"))
-	mux.Mount("/", v.Match(v.Map{">=1": v1, "2": v2}))
+	mux.Use(v.Version("vnd.api+json"))
+	mux.Mount("/", v.Match(v.Map{"^1": v1, "^2": v2}))
 
 	return httptest.NewServer(mux)
 }
