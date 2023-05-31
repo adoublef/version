@@ -35,7 +35,8 @@ jobs:
         with:
           go-version: ${{ matrix.version }}
       - 
+        name: Install dependencies
+        run: go get .
+      - 
         name: Run tests
-        run: |
-          go mod download
-          go test . -test.v
+        run: go test . -test.v
