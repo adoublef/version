@@ -1,4 +1,4 @@
-module github.com/adoublef-go/rest-api
+module github.com/adoublef-go/version
 
 go 1.20
 

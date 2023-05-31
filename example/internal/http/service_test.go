@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	v "github.com/adoublef-go/rest-api/internal/http/version"
-	v1 "github.com/adoublef-go/rest-api/internal/resource/http/v1"
-	v2 "github.com/adoublef-go/rest-api/internal/resource/http/v2"
+	v "github.com/adoublef-go/version"
+	v1 "example/internal/http/v1"
+	v2 "example/internal/http/v2"
 	"github.com/go-chi/chi/v5"
 	is "github.com/stretchr/testify/require"
 )
