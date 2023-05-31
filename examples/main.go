@@ -46,7 +46,7 @@ func run(ctx context.Context) error {
 
 	mux := chi.NewMux()
 	mux.Use(v.Version("vnd.api+json"))
-	mux.Mount("/", v.Match(v.Map{">=1": v1, "2": v2}))
+	mux.Mount("/", v.Match(v.Map{"^1": v1, "^2": v2}))
 
 	srv := &http.Server{
 		Addr:        ":" + PORT,
