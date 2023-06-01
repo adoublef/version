@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	version "github.com/Masterminds/semver/v3"
-	is "github.com/stretchr/testify/require"
 )
 
 func TestCheckVersion(t *testing.T) {
@@ -17,7 +16,9 @@ func TestCheckVersion(t *testing.T) {
 	var cs []constraintHandler
 	for s, h := range vm {
 		cc, err := version.NewConstraint(s)
-		is.NoError(t, err)
+		if err != nil {
+			t.Fatalf("version.NewConstraint: %v", err)
+		}
 
 		cs = append(cs, constraintHandler{cc, h})
 	}
@@ -27,11 +28,15 @@ func TestCheckVersion(t *testing.T) {
 	acceptHeader := "application/vnd.api+json; version=1.2"
 	// called during mux.Use
 	ver, err := parseVersion(acceptHeader, "vnd.api+json")
-	is.NoError(t, err)
+	if err != nil {
+		t.Fatalf("parseVersion: %v", err)
+	}
 
 	// called during mux.Mount
 	_, ok := match(cs, ver)
-	is.True(t, ok)
+	if !ok {
+		t.Fatalf("match: %v", err)
+	}
 }
 
 func TestParseVersion(t *testing.T) {
@@ -55,9 +60,13 @@ func TestParseVersion(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			ver, err := parseVersion(tc.media, "vnd.api+json")
-			is.NoError(t, err)
+			if err != nil {
+				t.Fatalf("parseVersion: %v", err)
+			}
 
-			is.Equal(t, tc.version, ver.String())
+			if tc.version != ver.String() {
+				t.Fatalf("expected %s, got %s", tc.version, ver.String())
+			}
 		})
 	}
 }
